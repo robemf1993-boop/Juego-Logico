@@ -1,0 +1,797 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Laboratorio de Compuertas Lógicas - El Profe Matus</title>
+    <!-- Tailwind CSS for modern layout styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome for clean icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts: Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #0f172a;
+            color: #f8fafc;
+            overflow-x: hidden;
+            touch-action: manipulation;
+        }
+        .code-font {
+            font-family: 'JetBrains Mono', monospace;
+        }
+        .glow-off {
+            box-shadow: 0 0 10px rgba(100, 116, 139, 0.2);
+        }
+        .glow-on-blue {
+            box-shadow: 0 0 15px rgba(59, 130, 246, 0.6), inset 0 0 5px rgba(59, 130, 246, 0.4);
+        }
+        .glow-on-emerald {
+            box-shadow: 0 0 20px rgba(16, 185, 129, 0.8), inset 0 0 8px rgba(16, 185, 129, 0.5);
+        }
+        .glow-on-red {
+            box-shadow: 0 0 15px rgba(239, 68, 68, 0.6), inset 0 0 5px rgba(239, 68, 68, 0.4);
+        }
+        .circuit-grid {
+            background-image: radial-gradient(rgba(51, 65, 85, 0.4) 1px, transparent 1px);
+            background-size: 24px 24px;
+        }
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #1e293b;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #475569;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #64748b;
+        }
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+        .animate-float {
+            animation: float 3s ease-in-out infinite;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col justify-between selection:bg-blue-500 selection:text-white">
+
+    <!-- Welcome Presentation Screen -->
+    <div id="welcome-screen" class="fixed inset-0 bg-slate-950 z-50 flex items-center justify-center p-4">
+        <div class="bg-slate-900 border border-slate-700/80 rounded-3xl p-8 sm:p-12 max-w-xl w-full shadow-2xl text-center relative overflow-hidden">
+            <div class="absolute -top-24 -left-24 w-48 h-48 bg-blue-600/20 rounded-full blur-3xl pointer-events-none"></div>
+            <div class="absolute -bottom-24 -right-24 w-48 h-48 bg-emerald-600/20 rounded-full blur-3xl pointer-events-none"></div>
+            
+            <div class="w-20 h-20 bg-blue-600/20 border border-blue-500/40 text-blue-400 rounded-3xl flex items-center justify-center mx-auto mb-6 text-3xl shadow-xl shadow-blue-500/20 animate-float">
+                <i class="fa-solid fa-microchip"></i>
+            </div>
+            
+            <span class="text-xs uppercase tracking-widest text-blue-400 font-bold bg-blue-500/10 px-3 py-1 rounded-full border border-blue-500/20">
+                Plataforma Educativa
+            </span>
+            
+            <h1 class="text-2xl sm:text-3xl font-extrabold text-white mt-4 mb-2 tracking-tight">
+                Bienvenidos al laboratorio del Profe Matus
+            </h1>
+            
+            <p class="text-sm text-slate-300 leading-relaxed mb-8">
+                Domina el diseño de circuitos digitales, compuertas lógicas y sistemas automatizados de la vida real a través de retos interactivos.
+            </p>
+            
+            <button onclick="startApp()" class="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-bold py-3.5 px-6 rounded-2xl shadow-lg shadow-blue-600/30 transition transform hover:-translate-y-0.5 flex items-center justify-center gap-2 text-sm">
+                <span>Iniciar Laboratorio</span>
+                <i class="fa-solid fa-arrow-right"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- Header -->
+    <header class="bg-slate-900/80 backdrop-blur-md border-b border-slate-800 sticky top-0 z-40 px-4 py-3">
+        <div class="max-w-7xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-4">
+            <div class="flex items-center gap-3">
+                <div class="bg-blue-600 text-white p-2.5 rounded-xl shadow-lg shadow-blue-500/30 flex items-center justify-center">
+                    <i class="fa-solid fa-microchip text-xl"></i>
+                </div>
+                <div>
+                    <h1 class="font-extrabold text-lg sm:text-xl tracking-tight text-white flex items-center gap-2">
+                        El Profe Matus <span class="text-xs bg-blue-500/20 text-blue-400 px-2 py-0.5 rounded-full border border-blue-500/30 font-mono">Lab v2.1</span>
+                    </h1>
+                    <p class="text-xs text-slate-400">Laboratorio interactivo de electrónica y lógica digital</p>
+                </div>
+            </div>
+
+            <!-- Level Selector & Stats -->
+            <div class="flex items-center gap-3 flex-wrap justify-center">
+                <div class="bg-slate-800/80 border border-slate-700/60 px-3 py-1.5 rounded-xl flex items-center gap-2 text-xs">
+                    <i class="fa-solid fa-layer-group text-blue-400"></i>
+                    <span class="text-slate-400">Nivel:</span>
+                    <span id="current-level-badge" class="font-bold text-white font-mono">1 / 10</span>
+                </div>
+                <button onclick="openLevelModal()" class="bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 px-3 py-1.5 rounded-xl text-xs font-medium transition flex items-center gap-1.5 shadow-sm">
+                    <i class="fa-solid fa-map text-emerald-400"></i> Seleccionar Nivel
+                </button>
+                <button onclick="resetCurrentLevel()" class="bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 px-3 py-1.5 rounded-xl text-xs font-medium transition flex items-center gap-1.5 shadow-sm" title="Reiniciar nivel">
+                    <i class="fa-solid fa-rotate-right text-amber-400"></i> Reiniciar
+                </button>
+                <button onclick="openHelpModal()" class="bg-blue-600/20 hover:bg-blue-600/30 text-blue-400 border border-blue-500/30 px-3 py-1.5 rounded-xl text-xs font-medium transition flex items-center gap-1.5">
+                    <i class="fa-solid fa-circle-question"></i> Guía
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content Layout -->
+    <main class="flex-1 max-w-7xl w-full mx-auto p-3 sm:p-6 grid grid-cols-1 lg:grid-cols-4 gap-6 items-start">
+        
+        <!-- Left Column: Level Instructions & Component Toolbox -->
+        <div class="lg:col-span-1 flex flex-col gap-6">
+            
+            <!-- Objective Card -->
+            <div class="bg-slate-800/90 border border-slate-700/80 rounded-2xl p-4 shadow-xl relative overflow-hidden">
+                <div class="absolute top-0 left-0 w-1 h-full bg-blue-500"></div>
+                <div class="flex items-center justify-between mb-2">
+                    <span class="text-xs uppercase tracking-wider text-blue-400 font-bold flex items-center gap-1.5">
+                        <i class="fa-solid fa-bullseye"></i> Misión Actual
+                    </span>
+                    <span id="level-title-num" class="text-xs bg-slate-700 text-slate-300 px-2 py-0.5 rounded-md font-mono">Nivel 1</span>
+                </div>
+                <h2 id="level-name" class="text-base font-bold text-white mb-1">El Interruptor Directo</h2>
+                <p id="level-desc" class="text-xs text-slate-300 leading-relaxed mb-3">Enciende el LED principal activando la fuente de energía.</p>
+                
+                <div class="bg-slate-900/60 rounded-xl p-2.5 border border-slate-700/50">
+                    <div class="text-[11px] text-slate-400 font-medium mb-1.5 flex items-center justify-between">
+                        <span>Estado del Objetivo:</span>
+                        <span id="goal-status-text" class="text-amber-400 font-bold">Pendiente</span>
+                    </div>
+                    <div id="target-condition-box" class="text-xs text-slate-200 code-font bg-slate-950 p-2 rounded-lg border border-slate-800">
+                        LED = 1 cuando A = 1
+                    </div>
+                </div>
+            </div>
+
+            <!-- Component Toolbox -->
+            <div class="bg-slate-800/90 border border-slate-700/80 rounded-2xl p-4 shadow-xl">
+                <div class="flex items-center justify-between mb-3">
+                    <span class="text-xs uppercase tracking-wider text-slate-300 font-bold flex items-center gap-1.5">
+                        <i class="fa-solid fa-toolbox text-amber-400"></i> Componentes
+                    </span>
+                    <span class="text-[10px] text-slate-400">Toca o Arrastra</span>
+                </div>
+                
+                <div id="toolbox-items" class="grid grid-cols-2 gap-2.5">
+                    <!-- Populated dynamically -->
+                </div>
+            </div>
+
+            <!-- Quick Hint Box -->
+            <div class="bg-slate-800/50 border border-slate-700/50 rounded-2xl p-4 text-xs text-slate-300">
+                <div class="flex items-center gap-2 text-blue-400 font-semibold mb-1">
+                    <i class="fa-solid fa-lightbulb"></i> Tip de Laboratorio
+                </div>
+                <p id="level-hint" class="text-slate-400 leading-relaxed">Haz clic o toca los interruptores (A, B) para alternar entre 0 y 1.</p>
+            </div>
+
+        </div>
+
+        <!-- Right Column: Interactive Circuit Workbench -->
+        <div class="lg:col-span-3 flex flex-col gap-4">
+            
+            <!-- Workbench Toolbar & Status -->
+            <div class="bg-slate-800/90 border border-slate-700/80 rounded-2xl p-3 px-4 shadow-xl flex flex-wrap items-center justify-between gap-3">
+                <div class="flex items-center gap-2">
+                    <span class="inline-block w-3 h-3 rounded-full bg-emerald-500 animate-pulse"></span>
+                    <span class="text-xs font-semibold text-slate-200">Simulación en vivo Activa</span>
+                </div>
+                <div class="flex items-center gap-2">
+                    <button onclick="clearWorkspace()" class="bg-slate-700 hover:bg-slate-600 text-slate-200 px-3 py-1.5 rounded-xl text-xs font-medium transition flex items-center gap-1.5">
+                        <i class="fa-solid fa-trash-can text-red-400"></i> Limpiar Tablero
+                    </button>
+                    <button onclick="verifyCircuit()" class="bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white px-4 py-1.5 rounded-xl text-xs font-semibold transition shadow-lg shadow-emerald-600/20 flex items-center gap-1.5">
+                        <i class="fa-solid fa-bolt"></i> Verificar Circuito
+                    </button>
+                </div>
+            </div>
+
+            <!-- Circuit Canvas Area -->
+            <div id="workbench-container" 
+                 class="relative bg-slate-900/90 border-2 border-slate-700/80 rounded-2xl h-[520px] shadow-2xl circuit-grid overflow-hidden flex flex-col"
+                 ondragover="allowDrop(event)"
+                 ondrop="dropComponent(event)">
+                
+                <!-- SVG layer for wires -->
+                <svg id="wires-svg" class="absolute inset-0 w-full h-full pointer-events-none z-10"></svg>
+
+                <!-- Drop zone container -->
+                <div id="workspace-elements" class="absolute inset-0 z-20 pointer-events-none"></div>
+
+                <!-- Empty state hint -->
+                <div id="empty-workspace-hint" class="absolute inset-0 flex flex-col items-center justify-center text-center p-6 text-slate-500 pointer-events-none z-0">
+                    <i class="fa-solid fa-microchip text-4xl mb-2 opacity-40"></i>
+                    <p class="text-sm font-medium text-slate-400">El tablero está vacío</p>
+                    <p class="text-xs text-slate-500 mt-1">Arrastra o toca componentes desde la izquierda para colocarlos.</p>
+                </div>
+
+                <!-- Bottom Status Bar -->
+                <div class="absolute bottom-3 left-3 right-3 bg-slate-950/80 backdrop-blur-md border border-slate-800 rounded-xl px-4 py-2.5 flex items-center justify-between text-xs z-30">
+                    <div class="flex items-center gap-4">
+                        <span class="text-slate-400">Entradas: <span id="status-inputs" class="text-white font-mono font-bold">A=0, B=0</span></span>
+                        <span class="text-slate-400">Salida LED: <span id="status-output" class="text-red-400 font-mono font-bold">0 (Apagado)</span></span>
+                    </div>
+                    <div class="text-slate-400 text-[11px]">
+                        Conecta pines haciendo clic/tocando el nodo de salida y luego el de entrada.
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <!-- Level Complete Modal -->
+    <div id="victory-modal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-slate-900 border border-slate-700 rounded-3xl p-6 sm:p-8 max-w-md w-full shadow-2xl text-center transform transition-all scale-95 opacity-0 relative overflow-hidden" id="victory-modal-content">
+            <div class="w-16 h-16 bg-emerald-500/20 border border-emerald-500/40 text-emerald-400 rounded-2xl flex items-center justify-center mx-auto mb-4 text-3xl shadow-lg shadow-emerald-500/20 animate-bounce">
+                <i class="fa-solid fa-trophy"></i>
+            </div>
+            <h3 class="text-xl font-extrabold text-white mb-2">¡Nivel Superado!</h3>
+            <p id="victory-message" class="text-sm text-slate-300 mb-6">Excelente trabajo en el Laboratorio del Profe Matus.</p>
+            <div class="flex gap-3">
+                <button onclick="closeVictoryModal()" class="flex-1 bg-slate-800 hover:bg-slate-700 text-slate-200 py-2.5 rounded-xl text-xs font-semibold transition">
+                    Repetir Nivel
+                </button>
+                <button onclick="nextLevel()" class="flex-1 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white py-2.5 rounded-xl text-xs font-semibold transition shadow-lg shadow-blue-600/30">
+                    Siguiente Nivel <i class="fa-solid fa-arrow-right ml-1"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Levels Selection Modal -->
+    <div id="levels-modal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-slate-900 border border-slate-700 rounded-3xl p-6 sm:p-8 max-w-lg w-full shadow-2xl max-h-[85vh] flex flex-col">
+            <div class="flex items-center justify-between mb-4 pb-3 border-b border-slate-800">
+                <h3 class="text-base font-bold text-white flex items-center gap-2">
+                    <i class="fa-solid fa-map text-emerald-400"></i> Seleccionar Nivel
+                </h3>
+                <button onclick="closeLevelModal()" class="text-slate-400 hover:text-white text-sm p-1">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            <div id="levels-grid" class="grid grid-cols-1 sm:grid-cols-2 gap-3 overflow-y-auto pr-1"></div>
+        </div>
+    </div>
+
+    <!-- Help Modal -->
+    <div id="help-modal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-slate-900 border border-slate-700 rounded-3xl p-6 sm:p-8 max-w-xl w-full shadow-2xl max-h-[85vh] flex flex-col">
+            <div class="flex items-center justify-between mb-4 pb-3 border-b border-slate-800">
+                <h3 class="text-base font-bold text-white flex items-center gap-2">
+                    <i class="fa-solid fa-circle-question text-blue-400"></i> Guía de Compuertas Lógicas
+                </h3>
+                <button onclick="closeHelpModal()" class="text-slate-400 hover:text-white text-sm p-1">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            <div class="space-y-3 overflow-y-auto pr-2 text-xs text-slate-300 leading-relaxed">
+                <div class="bg-slate-800/60 p-3 rounded-xl border border-slate-700/60"><strong class="text-blue-400">AND:</strong> Salida 1 solo si todas sus entradas son 1.</div>
+                <div class="bg-slate-800/60 p-3 rounded-xl border border-slate-700/60"><strong class="text-emerald-400">OR:</strong> Salida 1 si al menos una entrada es 1.</div>
+                <div class="bg-slate-800/60 p-3 rounded-xl border border-slate-700/60"><strong class="text-amber-400">NOT:</strong> Invierte el estado lógico de la entrada.</div>
+                <div class="bg-slate-800/60 p-3 rounded-xl border border-slate-700/60"><strong class="text-purple-400">XOR:</strong> Salida 1 si las entradas son diferentes.</div>
+                <div class="bg-slate-800/60 p-3 rounded-xl border border-slate-700/60"><strong class="text-rose-400">NAND / NOR:</strong> Variantes inversas de AND y OR.</div>
+                <div class="bg-slate-800/60 p-3 rounded-xl border border-slate-700/60"><strong class="text-teal-400">Aplicación Práctica:</strong> Automatización industrial y sistemas solares usando lógica combinacional.</div>
+            </div>
+            <div class="mt-6 pt-3 border-t border-slate-800 flex justify-end">
+                <button onclick="closeHelpModal()" class="bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded-xl text-xs font-semibold transition">Entendido</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notification Toast -->
+    <div id="toast-notification" class="fixed bottom-6 right-6 bg-slate-900 border border-slate-700 text-white px-4 py-3 rounded-2xl shadow-2xl z-50 flex items-center gap-3 transform translate-y-20 opacity-0 transition-all duration-300">
+        <div id="toast-icon" class="text-emerald-400 text-lg"><i class="fa-solid fa-circle-check"></i></div>
+        <div>
+            <h5 id="toast-title" class="text-xs font-bold text-white">Notificación</h5>
+            <p id="toast-desc" class="text-[11px] text-slate-300">Mensaje descriptivo.</p>
+        </div>
+    </div>
+
+    <!-- Application Script -->
+    <script>
+        // Web Audio API Sound Synthesizer
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+        function playSound(type) {
+            if (audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+            const osc = audioCtx.createOscillator();
+            const gainNode = audioCtx.createGain();
+            osc.connect(gainNode);
+            gainNode.connect(audioCtx.destination);
+
+            const now = audioCtx.currentTime;
+
+            if (type === 'click') {
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(400, now);
+                osc.frequency.exponentialRampToValueAtTime(200, now + 0.05);
+                gainNode.gain.setValueAtTime(0.1, now);
+                gainNode.gain.linearRampToValueAtTime(0.01, now + 0.05);
+                osc.start(now);
+                osc.stop(now + 0.05);
+            } else if (type === 'connect') {
+                osc.type = 'triangle';
+                osc.frequency.setValueAtTime(587.33, now);
+                osc.frequency.exponentialRampToValueAtTime(880, now + 0.1);
+                gainNode.gain.setValueAtTime(0.15, now);
+                gainNode.gain.linearRampToValueAtTime(0.01, now + 0.1);
+                osc.start(now);
+                osc.stop(now + 0.1);
+            } else if (type === 'victory') {
+                const notes = [523.25, 659.25, 783.99, 1046.50];
+                notes.forEach((freq, index) => {
+                    const noteOsc = audioCtx.createOscillator();
+                    const noteGain = audioCtx.createGain();
+                    noteOsc.connect(noteGain);
+                    noteGain.connect(audioCtx.destination);
+                    noteOsc.type = 'sine';
+                    noteOsc.frequency.setValueAtTime(freq, now + index * 0.1);
+                    noteGain.gain.setValueAtTime(0.2, now + index * 0.1);
+                    noteGain.gain.exponentialRampToValueAtTime(0.001, now + index * 0.1 + 0.3);
+                    noteOsc.start(now + index * 0.1);
+                    noteOsc.stop(now + index * 0.1 + 0.3);
+                });
+            }
+        }
+
+        // Expanded Level Definitions (10 levels total)
+        const levels = [
+            {
+                id: 1, name: "El Interruptor Directo", desc: "Enciende el LED principal conectando directamente la fuente A al LED.",
+                hint: "Enciende el interruptor A y conéctalo al pin 'in1' del LED.", availableComponents: ['switch', 'led'], requiredInputs: 1,
+                targetCondition: "LED se enciende cuando A = 1", validator: (outputs, inputs) => inputs.A === 1 && outputs['led-1'] === 1
+            },
+            {
+                id: 2, name: "Condición Estricta (AND)", desc: "El sistema requiere que ambos interruptores (A y B) estén activos.",
+                hint: "Usa una compuerta AND para combinar A y B.", availableComponents: ['switch', 'gate_and', 'led'], requiredInputs: 2,
+                targetCondition: "LED se enciende cuando A = 1 Y B = 1", validator: (outputs, inputs) => inputs.A === 1 && inputs.B === 1 && outputs['led-1'] === 1
+            },
+            {
+                id: 3, name: "Alternativa Flexible (OR)", desc: "La luz debe encenderse si al menos uno de los sensores (A o B) está activo.",
+                hint: "Usa la compuerta OR.", availableComponents: ['switch', 'gate_or', 'led'], requiredInputs: 2,
+                targetCondition: "LED se enciende si A = 1 Ó B = 1", validator: (outputs, inputs) => (inputs.A === 1 || inputs.B === 1) && outputs['led-1'] === 1
+            },
+            {
+                id: 4, name: "Inversión Lógica (NOT)", desc: "Queremos que el LED encienda por defecto y se apague al activar A.",
+                hint: "Conecta A a una compuerta NOT y la salida al LED.", availableComponents: ['switch', 'gate_not', 'led'], requiredInputs: 1,
+                targetCondition: "LED se enciende cuando A = 0", validator: (outputs, inputs) => inputs.A === 0 && outputs['led-1'] === 1
+            },
+            {
+                id: 5, name: "Lógica Combinada (AND + NOT)", desc: "El LED se activa únicamente si A está encendido Y B está apagado (0).",
+                hint: "Niega B con NOT y luego cómbinalo con A mediante AND.", availableComponents: ['switch', 'gate_and', 'gate_not', 'led'], requiredInputs: 2,
+                targetCondition: "LED se enciende cuando A = 1 Y B = 0", validator: (outputs, inputs) => inputs.A === 1 && inputs.B === 0 && outputs['led-1'] === 1
+            },
+            {
+                id: 6, name: "Diferencia Exclusiva (XOR)", desc: "El LED debe encenderse solo si uno de los interruptores es accionado, pero no ambos.",
+                hint: "Conecta A y B a una compuerta XOR.", availableComponents: ['switch', 'gate_xor', 'led'], requiredInputs: 2,
+                targetCondition: "LED se enciende si A y B son diferentes", validator: (outputs, inputs) => ((inputs.A !== inputs.B)) && outputs['led-1'] === 1
+            },
+            {
+                id: 7, name: "Negación Conjunta (NAND)", desc: "La compuerta NAND da salida 0 solo si todas las entradas son 1. Haz que encienda con cualquier otro estado.",
+                hint: "Usa la compuerta NAND conectada al LED.", availableComponents: ['switch', 'gate_nand', 'led'], requiredInputs: 2,
+                targetCondition: "LED = NOT(A AND B)", validator: (outputs, inputs) => !(inputs.A === 1 && inputs.B === 1) ? outputs['led-1'] === 1 : outputs['led-1'] === 0
+            },
+            {
+                id: 8, name: "Negación Disyunta (NOR)", desc: "La compuerta NOR enciende el LED exclusivamente cuando ninguna entrada está activa.",
+                hint: "Usa la compuerta NOR con A y B.", availableComponents: ['switch', 'gate_nor', 'led'], requiredInputs: 2,
+                targetCondition: "LED = NOT(A OR B)", validator: (outputs, inputs) => (inputs.A === 0 && inputs.B === 0) ? outputs['led-1'] === 1 : outputs['led-1'] === 0
+            },
+            {
+                id: 9, name: "Reto Maestro del Profe Matus", desc: "Diseña un circuito avanzado donde el LED encienda únicamente cuando A y B tengan el mismo estado lógico.",
+                hint: "Emplea compuertas lógicas combinadas para verificar igualdad.", availableComponents: ['switch', 'gate_and', 'gate_or', 'gate_not', 'gate_xor', 'led'], requiredInputs: 2,
+                targetCondition: "LED = 1 cuando A y B son iguales", validator: (outputs, inputs) => (inputs.A === inputs.B) && outputs['led-1'] === 1
+            },
+            {
+                id: 10, name: "Vida Real: Lámpara Solar Inteligente", desc: "Una lámpara solar para exteriores solo debe encenderse si hay oscuridad (Sensor A = 0) Y se detecta movimiento (Sensor B = 1). Diseña el circuito de control.",
+                hint: "Invierte la señal de oscuridad (A) con una compuerta NOT, luego combínala con el movimiento (B) usando una compuerta AND.", availableComponents: ['switch', 'gate_and', 'gate_not', 'led'], requiredInputs: 2,
+                targetCondition: "Lámpara = 1 cuando A = 0 (Oscuridad) Y B = 1 (Movimiento)", validator: (outputs, inputs) => inputs.A === 0 && inputs.B === 1 && outputs['led-1'] === 1
+            }
+        ];
+
+        let currentLevelIndex = 0;
+        let placedComponents = [];
+        let connections = [];
+        let inputsState = { A: 0, B: 0 };
+        let activeConnectionStart = null;
+        let nextComponentId = 1;
+
+        function startApp() {
+            document.getElementById('welcome-screen').classList.add('hidden');
+            playSound('click');
+            loadLevel(0);
+        }
+
+        function loadLevel(index) {
+            currentLevelIndex = index;
+            const level = levels[index];
+
+            document.getElementById('current-level-badge').innerText = `${level.id} / ${levels.length}`;
+            document.getElementById('level-title-num').innerText = `Nivel ${level.id}`;
+            document.getElementById('level-name').innerText = level.name;
+            document.getElementById('level-desc').innerText = level.desc;
+            document.getElementById('level-hint').innerText = level.hint;
+            document.getElementById('target-condition-box').innerText = level.targetCondition;
+            document.getElementById('goal-status-text').innerText = "Pendiente";
+            document.getElementById('goal-status-text').className = "text-amber-400 font-bold";
+
+            placedComponents = [];
+            connections = [];
+            inputsState = { A: 0, B: 0 };
+            activeConnectionStart = null;
+            nextComponentId = 1;
+
+            renderToolbox();
+            spawnDefaultLevelComponents(level);
+            evaluateCircuit();
+        }
+
+        function renderToolbox() {
+            const level = levels[currentLevelIndex];
+            const toolboxContainer = document.getElementById('toolbox-items');
+            toolboxContainer.innerHTML = '';
+
+            const componentMeta = {
+                'switch': { name: 'Interruptor', icon: 'fa-toggle-on', color: 'text-blue-400', desc: 'Señal 0 o 1' },
+                'gate_and': { name: 'AND', icon: 'fa-code-merge', color: 'text-blue-400', desc: 'Ambas 1' },
+                'gate_or': { name: 'OR', icon: 'fa-code-branch', color: 'text-emerald-400', desc: 'Alguna 1' },
+                'gate_not': { name: 'NOT', icon: 'fa-triangle-exclamation', color: 'text-amber-400', desc: 'Inversor' },
+                'gate_xor': { name: 'XOR', icon: 'fa-shuffle', color: 'text-purple-400', desc: 'Distintas' },
+                'gate_nand': { name: 'NAND', icon: 'fa-shield-halved', color: 'text-rose-400', desc: 'NOT-AND' },
+                'gate_nor': { name: 'NOR', icon: 'fa-circle-dot', color: 'text-indigo-400', desc: 'NOT-OR' },
+                'led': { name: 'Salida LED', icon: 'fa-lightbulb', color: 'text-red-400', desc: 'Actuador' }
+            };
+
+            level.availableComponents.forEach(compKey => {
+                const meta = componentMeta[compKey];
+                if (!meta) return;
+
+                const btn = document.createElement('div');
+                btn.className = "bg-slate-900/80 hover:bg-slate-900 border border-slate-700/70 hover:border-blue-500/50 p-2.5 rounded-xl cursor-pointer active:scale-95 transition flex flex-col items-center text-center group shadow-sm";
+                btn.setAttribute('draggable', 'true');
+                btn.ondragstart = (e) => e.dataTransfer.setData('text/plain', compKey);
+                // Tap/Click support for mobile placement
+                btn.onclick = () => { addComponentToWorkspace(compKey, 180 + Math.random() * 80, 120 + Math.random() * 150); playSound('click'); };
+                btn.innerHTML = `
+                    <div class="w-8 h-8 rounded-lg bg-slate-800 flex items-center justify-center mb-1.5 group-hover:scale-110 transition ${meta.color}">
+                        <i class="fa-solid ${meta.icon} text-sm"></i>
+                    </div>
+                    <span class="text-xs font-bold text-white mb-0.5">${meta.name}</span>
+                    <span class="text-[10px] text-slate-400">${meta.desc}</span>
+                `;
+                toolboxContainer.appendChild(btn);
+            });
+        }
+
+        function allowDrop(e) { e.preventDefault(); }
+
+        function dropComponent(e) {
+            e.preventDefault();
+            const compType = e.dataTransfer.getData('text/plain');
+            if (!compType) return;
+            const rect = document.getElementById('workbench-container').getBoundingClientRect();
+            const x = Math.max(10, Math.min(rect.width - 130, e.clientX - rect.left - 60));
+            const y = Math.max(10, Math.min(rect.height - 100, e.clientY - rect.top - 40));
+            addComponentToWorkspace(compType, x, y);
+            playSound('click');
+        }
+
+        function spawnDefaultLevelComponents(level) {
+            if (level.requiredInputs >= 1) addComponentWithPosition('switch', 40, 100, 'A');
+            if (level.requiredInputs >= 2) addComponentWithPosition('switch', 40, 280, 'B');
+            addComponentWithPosition('led', 560, 190, 'LED');
+        }
+
+        function addComponentWithPosition(type, x, y, label) { addComponentToWorkspace(type, x, y, label); }
+
+        function addComponentToWorkspace(type, customX = 250, customY = 180, label = null) {
+            const id = type === 'led' ? 'led-1' : `comp_${nextComponentId++}`;
+            if (type === 'led' && placedComponents.some(c => c.type === 'led')) return;
+
+            let inputsCount = (type === 'switch' || type === 'led') ? (type === 'led' ? 1 : 0) : ((type === 'gate_not') ? 1 : 2);
+            let outputsCount = (type === 'led') ? 0 : 1;
+            if (!label) label = type.replace('gate_', '').toUpperCase();
+
+            placedComponents.push({ id, type, label, x: customX, y: customY, inputsCount, outputsCount, state: 0 });
+            renderWorkspace();
+            evaluateCircuit();
+        }
+
+        function clearWorkspace() {
+            placedComponents = placedComponents.filter(c => c.type === 'led');
+            connections = [];
+            activeConnectionStart = null;
+            renderWorkspace();
+            evaluateCircuit();
+            playSound('click');
+        }
+
+        function resetCurrentLevel() { loadLevel(currentLevelIndex); playSound('click'); }
+
+        function renderWorkspace() {
+            const container = document.getElementById('workspace-elements');
+            const hint = document.getElementById('empty-workspace-hint');
+            container.innerHTML = '';
+
+            hint.style.display = placedComponents.length <= 1 ? 'flex' : 'none';
+
+            placedComponents.forEach(comp => {
+                const el = document.createElement('div');
+                el.className = "absolute bg-slate-800/95 border-2 border-slate-700 rounded-2xl p-3 shadow-2xl cursor-move flex flex-col items-center justify-center select-none transition-all duration-150 hover:border-blue-500/60 pointer-events-auto";
+                el.style.left = `${comp.x}px`;
+                el.style.top = `${comp.y}px`;
+                el.style.width = '130px';
+                el.style.zIndex = '25';
+                el.id = comp.id;
+
+                let headerColor = 'text-blue-400', iconClass = 'fa-microchip';
+                if (comp.type === 'switch') {
+                    headerColor = comp.state === 1 ? 'text-emerald-400' : 'text-slate-400';
+                    iconClass = comp.state === 1 ? 'fa-toggle-on' : 'fa-toggle-off';
+                } else if (comp.type === 'led') {
+                    headerColor = comp.state === 1 ? 'text-red-500' : 'text-slate-500';
+                    iconClass = 'fa-lightbulb';
+                }
+
+                let innerHtml = `
+                    <div class="flex items-center justify-between w-full mb-2 pb-1.5 border-b border-slate-700/60">
+                        <span class="text-xs font-bold text-white flex items-center gap-1.5">
+                            <i class="fa-solid ${iconClass} ${headerColor}"></i> ${comp.label}
+                        </span>
+                        ${comp.type !== 'led' ? `<button onclick="removeComponent('${comp.id}')" class="text-slate-500 hover:text-red-400 text-xs transition"><i class="fa-solid fa-xmark"></i></button>` : ''}
+                    </div>
+                `;
+
+                if (comp.type === 'switch') {
+                    innerHtml += `<button onclick="toggleSwitch('${comp.id}')" class="w-full py-2 rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5 ${comp.state === 1 ? 'bg-emerald-600/30 text-emerald-300 border border-emerald-500/50 glow-on-emerald' : 'bg-slate-900 text-slate-400 border border-slate-700'}"><span>${comp.state === 1 ? 'ON (1)' : 'OFF (0)'}</span></button>`;
+                } else if (comp.type === 'led') {
+                    innerHtml += `<div class="w-10 h-10 rounded-full flex items-center justify-center my-1 transition-all duration-300 ${comp.state === 1 ? 'bg-red-500 text-white glow-on-red scale-110' : 'bg-slate-900 text-slate-600 border border-slate-800'}"><i class="fa-solid fa-lightbulb text-lg"></i></div><span class="text-[10px] font-mono ${comp.state === 1 ? 'text-red-400 font-bold' : 'text-slate-500'}">${comp.state === 1 ? 'ENCENDIDO' : 'APAGADO'}</span>`;
+                } else {
+                    innerHtml += `<div class="py-2 text-[11px] font-mono font-bold text-slate-300 uppercase tracking-wider">${comp.type.replace('gate_', '')}</div>`;
+                }
+
+                innerHtml += `<div class="flex justify-between w-full mt-2 pt-1.5 border-t border-slate-700/40 text-[10px] text-slate-400">`;
+                innerHtml += `<div class="flex flex-col gap-1 items-start">`;
+                for (let i = 0; i < comp.inputsCount; i++) {
+                    const isConnected = connections.some(c => c.toComp === comp.id && c.toPin === i);
+                    innerHtml += `<div class="flex items-center gap-1.5 cursor-pointer py-1" onclick="handlePinClick('${comp.id}', ${i}, 'in')"><div class="w-4 h-4 rounded-full border-2 ${isConnected ? 'bg-blue-400 border-blue-300' : 'bg-slate-900 border-slate-500'} hover:scale-125 transition"></div><span class="text-[10px]">in${i+1}</span></div>`;
+                }
+                innerHtml += `</div><div class="flex flex-col gap-1 items-end">`;
+                for (let i = 0; i < comp.outputsCount; i++) {
+                    const isConnected = connections.some(c => c.fromComp === comp.id && c.fromPin === i);
+                    innerHtml += `<div class="flex items-center gap-1.5 cursor-pointer py-1" onclick="handlePinClick('${comp.id}', ${i}, 'out')"><span class="text-[10px]">out</span><div class="w-4 h-4 rounded-full border-2 ${isConnected ? 'bg-emerald-400 border-emerald-300' : 'bg-slate-900 border-slate-500'} hover:scale-125 transition"></div></div>`;
+                }
+                innerHtml += `</div></div>`;
+                el.innerHTML = innerHtml;
+
+                makeDraggableMobile(el, comp);
+                container.appendChild(el);
+            });
+            renderWires();
+        }
+
+        // Support both Mouse and Mobile Touch Dragging inside workbench
+        function makeDraggableMobile(element, comp) {
+            let isDragging = false, startX, startY;
+
+            const onStart = (clientX, clientY) => {
+                isDragging = true;
+                startX = clientX - comp.x;
+                startY = clientY - comp.y;
+                element.style.zIndex = '50';
+            };
+
+            const onMove = (clientX, clientY) => {
+                if (!isDragging) return;
+                const containerRect = document.getElementById('workbench-container').getBoundingClientRect();
+                comp.x = Math.max(5, Math.min(containerRect.width - 140, clientX - startX));
+                comp.y = Math.max(5, Math.min(containerRect.height - 120, clientY - startY));
+                element.style.left = `${comp.x}px`;
+                element.style.top = `${comp.y}px`;
+                renderWires();
+            };
+
+            const onEnd = () => { isDragging = false; element.style.zIndex = '25'; };
+
+            element.onmousedown = (e) => {
+                if (e.target.tagName === 'BUTTON' || e.target.closest('button') || e.target.closest('.cursor-pointer')) return;
+                onStart(e.clientX, e.clientY);
+                e.stopPropagation();
+            };
+            document.onmousemove = (e) => onMove(e.clientX, e.clientY);
+            document.onmouseup = onEnd;
+
+            element.ontouchstart = (e) => {
+                if (e.target.tagName === 'BUTTON' || e.target.closest('button') || e.target.closest('.cursor-pointer')) return;
+                const touch = e.touches[0];
+                onStart(touch.clientX, touch.clientY);
+                e.stopPropagation();
+            };
+            element.ontouchmove = (e) => {
+                if (!isDragging) return;
+                const touch = e.touches[0];
+                onMove(touch.clientX, touch.clientY);
+            };
+            element.ontouchend = onEnd;
+        }
+
+        function removeComponent(id) {
+            placedComponents = placedComponents.filter(c => c.id !== id);
+            connections = connections.filter(c => c.fromComp !== id && c.toComp !== id);
+            renderWorkspace();
+            evaluateCircuit();
+            playSound('click');
+        }
+
+        function toggleSwitch(id) {
+            const comp = placedComponents.find(c => c.id === id);
+            if (comp) {
+                comp.state = comp.state === 1 ? 0 : 1;
+                if (comp.label === 'A') inputsState.A = comp.state;
+                if (comp.label === 'B') inputsState.B = comp.state;
+                renderWorkspace();
+                evaluateCircuit();
+                playSound('click');
+            }
+        }
+
+        function handlePinClick(compId, pinIndex, pinType) {
+            if (pinType === 'out') {
+                activeConnectionStart = { compId, pinIndex, type: 'out' };
+                showToast("Salida seleccionada", "Toca un pin de entrada ('in') para completar.", "info");
+                playSound('click');
+            } else if (pinType === 'in') {
+                if (!activeConnectionStart) return;
+                if (activeConnectionStart.type === 'out' && activeConnectionStart.compId !== compId) {
+                    connections = connections.filter(c => !(c.toComp === compId && c.toPin === pinIndex));
+                    connections.push({ fromComp: activeConnectionStart.compId, fromPin: activeConnectionStart.pinIndex, toComp: compId, toPin: pinIndex });
+                    activeConnectionStart = null;
+                    playSound('connect');
+                    renderWorkspace();
+                    evaluateCircuit();
+                }
+            }
+        }
+
+        function renderWires() {
+            const svg = document.getElementById('wires-svg');
+            svg.innerHTML = '';
+            connections.forEach(conn => {
+                const fromEl = document.getElementById(conn.fromComp);
+                const toEl = document.getElementById(conn.toComp);
+                if (fromEl && toEl) {
+                    const fromRect = fromEl.getBoundingClientRect();
+                    const toRect = toEl.getBoundingClientRect();
+                    const containerRect = document.getElementById('workbench-container').getBoundingClientRect();
+                    const x1 = fromRect.right - containerRect.left - 6;
+                    const y1 = fromRect.top - containerRect.top + (fromRect.height / 2);
+                    const x2 = toRect.left - containerRect.left + 6;
+                    const y2 = toRect.top - containerRect.top + (toRect.height / 2);
+                    const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+                    const dx = Math.abs(x2 - x1) * 0.5;
+                    path.setAttribute('d', `M ${x1} ${y1} C ${x1 + dx} ${y1}, ${x2 - dx} ${y2}, ${x2} ${y2}`);
+                    path.setAttribute('class', 'stroke-blue-500 stroke-[3] fill-none drop-shadow');
+                    svg.appendChild(path);
+                }
+            });
+        }
+
+        function evaluateCircuit() {
+            placedComponents.forEach(c => {
+                if (c.type === 'switch') {
+                    if (c.label === 'A') inputsState.A = c.state;
+                    if (c.label === 'B') inputsState.B = c.state;
+                }
+            });
+
+            let compValues = {};
+            placedComponents.forEach(c => compValues[c.id] = c.type === 'switch' ? c.state : 0);
+
+            for (let pass = 0; pass < 4; pass++) {
+                placedComponents.forEach(comp => {
+                    if (comp.type === 'switch') return;
+                    let inputVals = [];
+                    for (let i = 0; i < comp.inputsCount; i++) {
+                        const conn = connections.find(c => c.toComp === comp.id && c.toPin === i);
+                        inputVals[i] = conn ? (compValues[conn.fromComp] || 0) : 0;
+                    }
+                    let outVal = 0;
+                    if (comp.type === 'gate_and') outVal = (inputVals[0] === 1 && inputVals[1] === 1) ? 1 : 0;
+                    else if (comp.type === 'gate_or') outVal = (inputVals[0] === 1 || inputVals[1] === 1) ? 1 : 0;
+                    else if (comp.type === 'gate_not') outVal = inputVals[0] === 1 ? 0 : 1;
+                    else if (comp.type === 'gate_xor') outVal = (inputVals[0] !== inputVals[1]) ? 1 : 0;
+                    else if (comp.type === 'gate_nand') outVal = !(inputVals[0] === 1 && inputVals[1] === 1) ? 1 : 0;
+                    else if (comp.type === 'gate_nor') outVal = !(inputVals[0] === 1 || inputVals[1] === 1) ? 1 : 0;
+                    else if (comp.type === 'led') outVal = inputVals[0];
+                    compValues[comp.id] = outVal;
+                });
+            }
+
+            placedComponents.forEach(c => c.state = compValues[c.id] !== undefined ? compValues[c.id] : 0);
+            renderWorkspace();
+
+            document.getElementById('status-inputs').innerText = `A=${inputsState.A}, B=${inputsState.B}`;
+            const ledComp = placedComponents.find(c => c.type === 'led');
+            const ledState = ledComp ? ledComp.state : 0;
+            const statusOut = document.getElementById('status-output');
+            statusOut.innerText = `${ledState} (${ledState === 1 ? 'Encendido' : 'Apagado'})`;
+            statusOut.className = ledState === 1 ? 'text-emerald-400 font-mono font-bold' : 'text-red-400 font-mono font-bold';
+        }
+
+        function verifyCircuit() {
+            evaluateCircuit();
+            const level = levels[currentLevelIndex];
+            let outputsMap = {};
+            placedComponents.forEach(c => outputsMap[c.id] = c.state);
+
+            if (level.validator(outputsMap, inputsState)) {
+                document.getElementById('goal-status-text').innerText = "¡Completado!";
+                document.getElementById('goal-status-text').className = "text-emerald-400 font-bold";
+                playSound('victory');
+                showVictoryModal();
+            } else {
+                showToast("Misión pendiente", "El circuito no cumple con la condición lógica.", "warning");
+            }
+        }
+
+        function showVictoryModal() {
+            const modal = document.getElementById('victory-modal');
+            const content = document.getElementById('victory-modal-content');
+            modal.classList.remove('hidden');
+            setTimeout(() => { content.classList.remove('scale-95', 'opacity-0'); content.classList.add('scale-100', 'opacity-100'); }, 10);
+        }
+
+        function closeVictoryModal() {
+            const modal = document.getElementById('victory-modal');
+            document.getElementById('victory-modal-content').classList.add('scale-95', 'opacity-0');
+            setTimeout(() => modal.classList.add('hidden'), 200);
+        }
+
+        function nextLevel() {
+            closeVictoryModal();
+            if (currentLevelIndex < levels.length - 1) loadLevel(currentLevelIndex + 1);
+            else { showToast("¡Felicidades!", "¡Has completado todo el laboratorio del Profe Matus!", "success"); openLevelModal(); }
+        }
+
+        function openLevelModal() {
+            const modal = document.getElementById('levels-modal');
+            const grid = document.getElementById('levels-grid');
+            grid.innerHTML = '';
+            levels.forEach((lvl, idx) => {
+                const btn = document.createElement('div');
+                btn.className = `p-3 rounded-2xl border cursor-pointer transition flex items-center justify-between ${idx === currentLevelIndex ? 'bg-blue-600/20 border-blue-500/60 text-white' : 'bg-slate-800/80 border-slate-700/80 hover:border-slate-600 text-slate-300'}`;
+                btn.onclick = () => { loadLevel(idx); closeLevelModal(); };
+                btn.innerHTML = `<div><div class="text-xs font-bold text-white mb-0.5">Nivel ${lvl.id}: ${lvl.name}</div><div class="text-[11px] text-slate-400 line-clamp-1">${lvl.desc}</div></div><i class="fa-solid fa-chevron-right text-xs text-slate-500"></i>`;
+                grid.appendChild(btn);
+            });
+            modal.classList.remove('hidden');
+        }
+
+        function closeLevelModal() { document.getElementById('levels-modal').classList.add('hidden'); }
+        function openHelpModal() { document.getElementById('help-modal').classList.remove('hidden'); }
+        function closeHelpModal() { document.getElementById('help-modal').classList.add('hidden'); }
+
+        function showToast(title, desc, type = 'success') {
+            const toast = document.getElementById('toast-notification');
+            document.getElementById('toast-title').innerText = title;
+            document.getElementById('toast-desc').innerText = desc;
+            toast.classList.remove('translate-y-20', 'opacity-0');
+            setTimeout(() => toast.classList.add('translate-y-20', 'opacity-0'), 3500);
+        }
+    </script>
+</body>
+</html>
